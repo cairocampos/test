@@ -23,5 +23,6 @@ Route::group(['middleware' => ['auth:api']], function () {
 Route::group(['middleware' => ['auth:api']], function () {
     Route::prefix("barbers")->group(function(){
         Route::get("/", [BarberController::class, "index"]);
+        Route::get("/{id}", [BarberController::class, "show"]);
     });
 });
