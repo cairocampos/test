@@ -17,6 +17,8 @@ Route::prefix("auth")->group(function(){
 Route::group(['middleware' => ['auth:api']], function () {
     Route::prefix("users")->group(function(){
         Route::put("account", [UserController::class, "update"]);
+        Route::get("/favorites", [UserController::class, "getFavoritesBarbers"]);
+        Route::post("/favorites/{id}", [UserController::class, "setFavoriteBarber"]);
     });
 });
 

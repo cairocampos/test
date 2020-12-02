@@ -10,4 +10,6 @@ class UserFavorite extends Model
     use HasFactory;
 
     public $timestamps = false;
+
+    protected $fillable = ["barber_id", "user_id"];
 }

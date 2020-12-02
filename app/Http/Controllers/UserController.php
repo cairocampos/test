@@ -3,11 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserFavorite;
+use App\Services\Geolocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
-{
+{   
+    private $user_id;
+
+    public function __construct()
+    {
+        $this->user_id = auth()->user()->id;
+    }
+
     public function update(Request $request)
     {   
         $request->validate([
@@ -49,5 +58,42 @@ class UserController extends Controller
         $user->avatar = url("/media/avatars/{$user->avatar}");
 
         return $user;
+    }
+
+    public function getFavoritesBarbers()
+    {   
+        $user_id = $this->user_id;
+        $favorites = User::find($user_id)
+            ->join("user_favorites", function($join) use($user_id) {
+                $join->on("users.id", "=", "user_favorites.user_id")
+                    ->where("users.id", $user_id);
+            })
+            ->join("barbers", function($join) {
+                $join->on("barbers.id", "=", "user_favorites.barber_id");
+            })
+            ->select("barbers.*")
+            ->get();
+        
+        foreach($favorites as $favorite) {
+            $favorite["avatar"] = url("/media/avatars/{$favorite['avatar']}");
+            $favorite["distance"] = Geolocation::calcDistance($favorite["latitude"], $favorite["longitude"]);
+        }
+        
+            return $favorites;
+    }
+
+    public function setFavoriteBarber($barber_id)
+    {   
+        $data = [
+            "user_id" => $this->user_id,
+            "barber_id" => $barber_id
+        ];
+
+        if(UserFavorite::where("user_id", $this->user_id)->where("barber_id", $barber_id)->exists()) {
+            return UserFavorite::where("user_id", $this->user_id)->where("barber_id", $barber_id)->delete();
+        } else {
+            $favorited = UserFavorite::create($data);
+            return $favorited;
+        }
     }
 }
