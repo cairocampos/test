@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserAppointment;
 use App\Models\UserFavorite;
 use App\Services\Geolocation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -95,5 +97,10 @@ class UserController extends Controller
             $favorited = UserFavorite::create($data);
             return $favorited;
         }
+    }
+
+    public function getAppointments()
+    {  
+        return UserAppointment::with(["barber"])->where("user_id", $this->user_id)->get();
     }
 }

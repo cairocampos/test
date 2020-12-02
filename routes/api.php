@@ -28,3 +28,5 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get("/{id}", [BarberController::class, "show"]);
     });
 });
+
+Route::get("/appointments", [UserController::class, "getAppointments"]);
